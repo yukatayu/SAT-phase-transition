@@ -5,7 +5,7 @@
 #include <algorithm>
 #include <vector>
 #include <cassert>
-// #include <fstream>
+#include <fstream>
 
 using real = long double;
 
@@ -60,10 +60,11 @@ int main(){
     std::printf("  N | k |  M |  M/N  | rate of SAT \n");
     for(int N : {5, 10, 20}){
         for(int k : {2, 3}){
-            std::printf("--------------------------------------");
-            for(int M=1; M<75; ++M){
+            std::ofstream data_out("data_" + std::to_string(N) + "_" + std::to_string(k) + ".txt");
+            std::printf("--------------------------------------\n");
+            for(int M=1; M<25*N; M += N/5){
                 int satCnt = 0, unsatCnt = 0;
-                for(int i=0; i<1000; ++i){
+                for(int i=0; i<10000; ++i){
                     auto clauses = func_d(k, N, M);
                     auto [isSAT, conds] = solve(clauses);
                     if(isSAT)
@@ -72,9 +73,14 @@ int main(){
                         ++unsatCnt;
                 }
                 std::printf(" %2d | %d | %2d | %2.2lf | %1.4lf \n",
-                N, k, M, static_cast<double>(M) / N, static_cast<double>(satCnt) / (satCnt + unsatCnt));
+                    N, k, M, static_cast<double>(M) / N, static_cast<double>(satCnt) / (satCnt + unsatCnt));
+                data_out
+                    << static_cast<double>(M) / N
+                    << "  "
+                    << static_cast<double>(satCnt) / (satCnt + unsatCnt)
+                    << std::endl;
+                std::fflush(stdout);
             }
         }
     }
-
 }
